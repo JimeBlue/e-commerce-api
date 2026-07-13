@@ -1,5 +1,5 @@
 {
-  "name": "wbs-node-ts-template",
+  "name": "eCommerce-api",
   "version": "1.0.0",
   "description": "",
   "main": "dist/app.js",
@@ -11,11 +11,11 @@
     }
   },
   "scripts": {
-    "dev": "node --watch --conditions development src/app.ts",
+    "dev": "node --env-file=.env.development.local --watch --conditions development src/app.ts",
     "prebuild": "rm -rf dist",
     "build": "tsc",
     "prestart": "npm run build",
-    "start": "node dist/app.js"
+    "start": "node --env-file=.env.production.local dist/app.js"
   },
   "keywords": [],
   "author": "",
