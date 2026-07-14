@@ -1,5 +1,13 @@
 import mongoose from 'mongoose';
 
+// global config so every model's JSON output uses `id` instead of `_id` (FR015)
+mongoose.set('toJSON', {
+  virtuals: true,
+  transform: (_doc, converted) => {
+    delete (converted as Partial<typeof converted>)._id;
+  },
+});
+
 const connectDB = async () => {
   const mongoUri = process.env.MONGODB_URI;
   if (!mongoUri) {
