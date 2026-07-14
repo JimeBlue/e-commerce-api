@@ -1,16 +1,14 @@
 import type { RequestHandler } from 'express';
 import type { z } from 'zod';
 import User from '../models/User.ts';
-import type { userSchema } from '../schemas/userSchema.ts';
+import type { IdParams } from '../schemas/idParamSchema.ts';
+import { type UpdateUserInput, type userInputSchema, userOutputSchema } from '../schemas/userSchema.ts';
 
 //DTOs
-// derived shape from zod#s userSchema
-type UserInputDTO = z.input<typeof userSchema>;
-// extend UserInputDTO to also include id, since a response includes an id but a create-request doesn't
-type UserDTO = UserInputDTO & { id: string };
-
-// local type to describe the shape of req.params (the :id in the URL)
-type IdParams = { id: string };
+// derived shape from zod's userInputSchema
+type UserInputDTO = z.input<typeof userInputSchema>;
+// derived shape from userOutputSchema — omits password, includes id
+type UserOutputDTO = z.infer<typeof userOutputSchema>;
 
 //  No try/catch. Instead centralized error handling with consistent error responses. Controllers don't format anything, they just throw.
 // The actual errro formatting happens in errorHandler.ts
@@ -18,26 +16,26 @@ type IdParams = { id: string };
 
 // NOTE: getUsers
 // unknown = Params. GET /users has no :something in its URL, so there's nothing to type there. unknown is used
-// UserDTO[]  this says "this handler must respond with an array of UserDTO objects."
+// UserOutputDTO[]  this says "this handler must respond with an array of UserOutputDTO objects."
 // No throw here for an empty result. An empty list isn't an error — GET /users returning [] with 200
 // is a valid, successful answer. Unlike getUserById, there's no specific resource being asked for that's "missing."
-export const getUsers: RequestHandler<unknown, UserDTO[]> = async (req, res) => {
+export const getUsers: RequestHandler<unknown, UserOutputDTO[]> = async (req, res) => {
   const users = await User.find();
-  res.json(users);
+  res.json(users.map((user) => userOutputSchema.parse(user)));
 };
 
 // getUserById
-export const getUserById: RequestHandler<IdParams, UserDTO> = async (req, res) => {
+export const getUserById: RequestHandler<IdParams, UserOutputDTO> = async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(id);
 
   if (!user) throw new Error('User not found', { cause: { status: 404 } });
 
-  res.json(user);
+  res.json(userOutputSchema.parse(user));
 };
 
 // NOTE: createUser
-export const createUser: RequestHandler<unknown, UserDTO, UserInputDTO> = async (req, res) => {
+export const createUser: RequestHandler<unknown, UserOutputDTO, UserInputDTO> = async (req, res) => {
   const { email } = req.body;
 
   // app-layer check for a friendly 409 instead of a raw E11000 from the DB's unique index (the actual guarantee)
@@ -46,13 +44,13 @@ export const createUser: RequestHandler<unknown, UserDTO, UserInputDTO> = async 
 
   // satisfies is a TypeScript operator. It does one thing: it checks "does this value's type match/fit this other type?" 
   const user = await User.create(req.body satisfies UserInputDTO);
-  res.status(201).json(user);
+  res.status(201).json(userOutputSchema.parse(user));
 };
 
 // NOTE: updateUser
-// I used Partial 'cause I wanna update whatever fields is sent rather than resend the entire user every time. 
-// I.e. If a client only wants to change their email, I don't to force them to also resend name  for example.
-export const updateUser: RequestHandler<IdParams, UserDTO, Partial<UserInputDTO>> = async (req, res) => {
+// updateUserSchema makes every field optional 'cause I wanna update whatever fields is sent rather than resend the entire user every time.
+// I.e. If a client only wants to change their email, I don't want to force them to also resend name  for example.
+export const updateUser: RequestHandler<IdParams, UserOutputDTO, UpdateUserInput> = async (req, res) => {
   const { id } = req.params;
   const update = req.body;
 
@@ -70,7 +68,7 @@ export const updateUser: RequestHandler<IdParams, UserDTO, Partial<UserInputDTO>
 
   if (!user) throw new Error('User not found', { cause: { status: 404 } });
 
-  res.json(user);
+  res.json(userOutputSchema.parse(user));
 };
 
 
