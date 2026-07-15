@@ -10,6 +10,10 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   if (err instanceof Error) {
     if (err.cause && typeof err.cause === 'object' && 'status' in err.cause) {
       statusCode = err.cause.status as number;
+    // falls back to err.status for errors we don't throw ourselves — e.g. express.json()'s
+    // body-parser sets `status` directly (not `cause`) on the SyntaxError it throws for malformed JSON. 
+    } else if ('status' in err && typeof err.status === 'number') {
+      statusCode = err.status;
     }
     message = err.message;
   }
