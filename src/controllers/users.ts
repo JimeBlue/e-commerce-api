@@ -61,10 +61,10 @@ export const updateUser: RequestHandler<IdParams, UserOutputDTO, UpdateUserInput
     if (existingUser) throw new Error('Email already in use', { cause: { status: 409 } });
   }
 
-  // { new: true } -->  by default, findByIdAndUpdate returns the document as it was before the update was applied.
-  // { new: true } tells it to return the document after the update instead. 
+  // { returnDocument: 'after' } --> by default, findByIdAndUpdate returns the document as it was before the update was applied.
+  // returnDocument: 'after' tells it to return the document after the update instead.
   // So, I need that to avoid sending the client stale, pre-update data back
-  const user = await User.findByIdAndUpdate(id, update, { new: true });
+  const user = await User.findByIdAndUpdate(id, update, { returnDocument: 'after' });
 
   if (!user) throw new Error('User not found', { cause: { status: 404 } });
 
