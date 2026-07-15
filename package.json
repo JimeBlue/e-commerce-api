@@ -8,6 +8,10 @@
     "#utils": {
       "development": "./src/utils/index.ts",
       "default": "./dist/utils/index.js"
+    },
+    "#*": {
+      "development": "./src/*.ts",
+      "default": "./dist/*.js"
     }
   },
   "scripts": {

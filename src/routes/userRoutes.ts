@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { createUser, deleteUser, getUserById, getUsers, updateUser } from '../controllers/users.ts';
-import validateBody from '../middleware/validateBody.ts';
-import validateParams from '../middleware/validateParams.ts';
-import { idParamSchema } from '../schemas/idParamSchema.ts';
-import { updateUserSchema, userInputSchema } from '../schemas/userSchema.ts';
+import { createUser, deleteUser, getUserById, getUsers, updateUser } from '#controllers/users';
+import validateBody from '#middleware/validateBody';
+import validateParams from '#middleware/validateParams';
+import { idParamSchema } from '#schemas/idParamSchema';
+import { updateUserSchema, userInputSchema } from '#schemas/userSchema';
 
 const userRoutes = Router();
 

@@ -1,8 +1,8 @@
 import type { RequestHandler } from 'express';
 import type { z } from 'zod';
-import User from '../models/User.ts';
-import type { IdParams } from '../schemas/idParamSchema.ts';
-import { type UpdateUserInput, type userInputSchema, userOutputSchema } from '../schemas/userSchema.ts';
+import User from '#models/User';
+import type { IdParams } from '#schemas/idParamSchema';
+import { type UpdateUserInput, type userInputSchema, userOutputSchema } from '#schemas/userSchema';
 
 //DTOs
 // derived shape from zod's userInputSchema
