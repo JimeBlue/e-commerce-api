@@ -3,6 +3,7 @@ import express from 'express';
 import connectDB from './db/index.ts';
 import errorHandler from './middleware/errorHandler.ts';
 import categoryRoutes from './routes/categoryRoutes.ts';
+import orderRoutes from './routes/orderRoutes.ts';
 import productRoutes from './routes/productRoutes.ts';
 import userRoutes from './routes/userRoutes.ts';
 
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 app.use('/users', userRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/products', productRoutes);
+app.use('/orders', orderRoutes);
 
 app.use(errorHandler);
 
