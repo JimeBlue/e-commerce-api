@@ -1,4 +1,4 @@
-import { isValidObjectId } from 'mongoose';
+import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 
 export const productInputSchema = z.strictObject({
@@ -18,5 +18,15 @@ export const productOutputSchema = z.object({
   name: productInputSchema.shape.name,
   description: productInputSchema.shape.description,
   price: productInputSchema.shape.price,
-  categoryId: productInputSchema.shape.categoryId,
+  // a raw Mongoose document's categoryId is an ObjectId instance, not a string — the input schema's
+  // plain z.string() shape can't be reused here, so this coerces it to a string for the API response
+  categoryId: z.union([z.string(), z.instanceof(Types.ObjectId)]).transform(String),
 });
+
+// FR020: GET /products supports an optional ?categoryId= filter — validated here since it needs
+// the same isValidObjectId check as the body field, just applied to a query string instead
+export const productQuerySchema = z.object({
+  categoryId: z.string().refine(isValidObjectId, 'must be a valid id').optional(),
+});
+
+export type ProductQuery = z.infer<typeof productQuerySchema>;

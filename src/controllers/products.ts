@@ -3,16 +3,18 @@ import type { z } from 'zod';
 import Category from '#models/Category';
 import Product from '#models/Product';
 import type { IdParams } from '#schemas/idParamSchema';
-import { type ProductInput, productOutputSchema, type UpdateProductInput } from '#schemas/productSchema';
+import {
+  type ProductInput,
+  productOutputSchema,
+  type ProductQuery,
+  type UpdateProductInput,
+} from '#schemas/productSchema';
 
 type ProductOutputDTO = z.infer<typeof productOutputSchema>;
 
 // NOTE: Get all products
 // FR020: GET /products supports an optional ?categoryId= filter
-export const getProducts: RequestHandler<unknown, ProductOutputDTO[], unknown, { categoryId?: string }> = async (
-  req,
-  res,
-) => {
+export const getProducts: RequestHandler<unknown, ProductOutputDTO[], unknown, ProductQuery> = async (req, res) => {
   const { categoryId } = req.query;
   const products = await Product.find(categoryId ? { categoryId } : {});
   res.json(products.map((product) => productOutputSchema.parse(product)));
