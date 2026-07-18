@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import connectDB from './db/index.ts';
 import errorHandler from './middleware/errorHandler.ts';
+import notFoundHandler from './middleware/notFoundHandler.ts';
 import categoryRoutes from './routes/categoryRoutes.ts';
 import orderRoutes from './routes/orderRoutes.ts';
 import productRoutes from './routes/productRoutes.ts';
@@ -23,6 +24,7 @@ app.use('/categories', categoryRoutes);
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
 
+app.use(notFoundHandler);
 app.use(errorHandler);
 
 await connectDB();
